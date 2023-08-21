@@ -1,8 +1,21 @@
-CC = gcc
-EXE = micg
+TARGET=platform# platform or web
 
 CFLAGS = -Wall -pedantic -std=c99
 LDFLAGS = -lSDL2
+
+ifeq (platform, $(TARGET))
+	CC = gcc
+	EXE = micg
+else ifeq (web, $(TARGET))
+	CC = emcc
+	EXE = micg.html
+
+	CFLAGS += -s USE_SDL=2
+else
+	CC = false
+	EXE = micg
+endif
+
 SRCFILES = main.c world.c
 
 OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))

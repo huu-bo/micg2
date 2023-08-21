@@ -1,5 +1,9 @@
 #include <stdio.h>
 
+#ifdef __EMSCRIPTEN__
+#include "emscripten.h"
+#endif
+
 #include <SDL2/SDL.h>
 
 #include "main.h"
@@ -7,9 +11,16 @@
 
 struct World* world;
 
-int main() {
-	printf("Hello, World!\n");
+#ifdef __EMSCRIPTEN__
+ void
+#else
+ int
+#endif
+ main_loop(void);
 
+SDL_Renderer* render = NULL;
+
+int main() {
 	int error = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	if (error != 0) {
 		const char* e  = SDL_GetError();
@@ -28,7 +39,7 @@ int main() {
 		return 1;
 	}
 
-	SDL_Renderer* render = SDL_CreateRenderer(window, -1, 0);  // no flags prefers hardware accelerated
+	render = SDL_CreateRenderer(window, -1, 0);  // no flags prefers hardware accelerated
 	if (render == NULL) {
 		const char* e  = SDL_GetError();
 
@@ -37,22 +48,47 @@ int main() {
 		return 1;
 	}
 
-	int run = 1;
-	SDL_Event event;
 	world = world__new();
-	while (run) {
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-				case SDL_QUIT: {
-					run = 0;
-				} break;
-			}
-		}
 
-		SDL_RenderPresent(render);
-		SDL_Delay(16);
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(main_loop, 0, 1);
+#else
+	int run = 1;
+	while (run) {
+		run = main_loop();
+		SDL_Delay(16); // TODO: measure time and chance delay
 	}
+#endif // __EMSCRIPTEN__
 
 	world__delete(world);
 	SDL_Quit();
 }
+
+#ifdef __EMSCRIPTEN__
+ void
+#else
+ int
+#endif
+main_loop(void) {
+	int run = 1;
+	SDL_Event event;
+
+	while (SDL_PollEvent(&event)) {
+		switch (event.type) {
+			case SDL_QUIT: {
+				#ifdef __EMSCRIPTEN__
+				emscripten_cancel_main_loop();
+				#else
+				run = 0;
+				#endif
+			} break;
+		}
+	}
+
+	SDL_RenderPresent(render);
+
+	#ifndef __EMSCRIPTEN__
+	 return run;
+	#endif
+}
+
