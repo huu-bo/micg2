@@ -1,7 +1,4 @@
 build
 
-build.html
-build.js
-build.wasm
-
 micg
+micg.*
