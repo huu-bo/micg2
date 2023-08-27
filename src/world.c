@@ -41,3 +41,24 @@ void world__delete(struct World* world) {
 	free(world);
 }
 
+static size_t world__hash(int x, int y) {
+	return (x + y * WORLD_HASH_ROW) % WORLD_HASHMAP_SIZE;
+}
+struct Chunk* world__get_chunk(struct World* world, int x, int y) {
+	if (world == NULL) {
+		return NULL;
+	}
+
+	size_t v = world__hash(x, y);
+
+	for (size_t i = 0; i < world->_world[v].size; i++) {
+		struct World__Hash_entry* e = &world->_world[v].chunks[i];
+
+		if (e->x == x && e->y == y) {
+			return &e->chunk;
+		}
+	}
+
+	return NULL;
+}
+

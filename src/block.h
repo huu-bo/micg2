@@ -7,7 +7,6 @@ struct Block;
 
 struct Block {
 	unsigned int type;
-	SDL_Color* color;
 };
 
 #endif // BLOCK_H_

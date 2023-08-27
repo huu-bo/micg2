@@ -9,6 +9,7 @@ struct World;
 struct Chunk;
 
 #define WORLD_HASHMAP_SIZE 1024
+#define WORLD_HASH_ROW 10
 #define CHUNK_SIZE 40
 
 struct Chunk {
@@ -22,7 +23,7 @@ void chunk__delete(struct Chunk*);
 struct World {
 	struct {
 		size_t size;
-		struct {
+		struct World__Hash_entry {
 			int x, y;
 			struct Chunk chunk;
 		} *chunks;
