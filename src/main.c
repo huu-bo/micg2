@@ -119,9 +119,13 @@ main_loop(void) {
 		}
 	}
 
-	SDL_Rect r = {10, 10, 100, 100};
-	SDL_SetRenderDrawColor(render, 255, 255, 255, 255);
-	SDL_RenderFillRect(render, &r);
+//	for (int y = 0; y < CHUNK_SIZE; y++) {
+//		for (int x = 0; x < CHUNK_SIZE; x++) {
+//			SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
+//			SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
+//			SDL_RenderFillRect(render, &r);
+//		}
+//	}
 
 	SDL_RenderPresent(render);
 

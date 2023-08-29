@@ -73,7 +73,7 @@ struct Chunk* world__gen_chunk(struct World* world, int x, int y) {
 
 	for (size_t bx_i = 0; bx_i < CHUNK_SIZE; bx_i++) {
 		int bx = x * CHUNK_SIZE + bx_i;
-		int height = noise__gen_ground(world->seed, bx, CHUNK_SIZE) - y * CHUNK_SIZE;
+		int height = noise__gen_ground(world->seed, bx) - y * CHUNK_SIZE;
 		for (size_t by_i = 0; by_i < CHUNK_SIZE; by_i++) {
 			int by = y * CHUNK_SIZE + by_i;
 

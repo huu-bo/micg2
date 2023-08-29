@@ -7,7 +7,8 @@ ifeq (platform, $(TARGET))
 	CC = gcc
 	EXE = micg
 
-	LDFLAGS += -lSDL2
+	CFLAGS += -ggdb
+	LDFLAGS += -lSDL2 -ggdb
 else ifeq (web, $(TARGET))
 	CC = emcc
 	EXE = micg.html
@@ -27,7 +28,8 @@ $(EXE): $(OBJFILES)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 src/main.c: src/main.h src/physics.h src/world.h
-src/world.c: src/world.h src/main.h src/block.h
+src/world.c: src/world.h src/main.h src/block.h src/noise.h
+src/block.c: src/block.h
 
 build/%.o: src/%.c src/test.h Makefile | build
 	$(CC) $(CFLAGS) -c $< -o $@

@@ -24,6 +24,6 @@ static int interpolate(int a, int b, float t) {
 	return (int)((double)a * mu + (double)b * (1. - mu));
 }
 
-int noise__gen_ground(int seed, int x, unsigned int scale) {
-	// TODO
+int noise__gen_ground(int seed, int x) {
+	return random(seed, x) / 10;
 }
