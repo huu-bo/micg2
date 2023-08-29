@@ -26,13 +26,12 @@ int load_blocks() {
 		fprintf(stderr, "read_dir() returned NULL\n");
 		return 1;
 	}
-	printf("read_dir len = %lu\n", len);
 
-	for (size_t i = 0; i < len; i++) {
-		printf("'%s': '%s'\n", files[i].path, files[i].name);
-		// puts(files[i].path);
-		// puts(files[i].name);
-	}
+	// for (size_t i = 0; i < len; i++) {
+	// 	printf("'%s': '%s'\n", files[i].path, files[i].name);
+	// 	// puts(files[i].path);
+	// 	// puts(files[i].name);
+	// }
 
 	return 0;
 }
@@ -82,6 +81,7 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 					if (files_len * sizeof(struct Texture_file) + s * sizeof(struct Texture_file) >= files_size) {
 						files = realloc(files, files_size + s * sizeof(struct Texture_file));
 						if (files == NULL) {
+							fprintf(stderr, "malloc failed %s:%d\n", __FILE__, __LINE__);
 							return NULL;
 						}
 					}
@@ -94,6 +94,7 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 					if (files_len * sizeof(struct Texture_file) >= files_size) {
 						files = realloc(files, files_size + sizeof(struct Texture_file));
 						if (files == NULL) {
+							fprintf(stderr, "malloc failed %s:%d\n", __FILE__, __LINE__);
 							return NULL;
 						}
 					}
@@ -124,6 +125,7 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 						size_t path_len = strlen(new_path);
 						char* path = malloc(path_len);
 						if (path == NULL) {
+							fprintf(stderr, "malloc failed %s:%d\n", __FILE__, __LINE__);
 							return NULL;
 						}
 						strcpy(path, new_path);
