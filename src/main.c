@@ -8,7 +8,7 @@
 
 #include "main.h"
 #include "world.h"
-#include "physics.h"
+#include "block.h"
 
 struct World* world;
 
@@ -22,6 +22,10 @@ struct World* world;
  main_loop(void);
 
 SDL_Renderer* render = NULL;
+
+#if SIZE % 10 != 0
+ #warning "size of not factor ten results in ugly pixel art"
+#endif
 
 int main() {
 	int error = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -43,7 +47,7 @@ int main() {
 
 		snprintf(title, TITLE_LENGTH, TITLE " %d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
-		window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800, 0);
+		window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SIZE * CHUNK_SIZE, SIZE * CHUNK_SIZE, 0);
 	}
 	if (window == NULL) {
 		const char* e  = SDL_GetError();
@@ -62,12 +66,14 @@ int main() {
 		return 1;
 	}
 
-	world = world__new();
+	world = world__new(0);  // TODO: allow user to enter seed
 	if (world == NULL) {
 		fprintf(stderr, "error creating world\n");
 
 		return 1;
 	}
+
+	load_blocks();
 
 	// if (start_physics() != 0) {
 	// 	SDL_Quit();

@@ -14,13 +14,15 @@ struct Chunk;
 
 struct Chunk {
 	unsigned int last_used;
-	struct Block* chunk;
+	struct Block chunk[CHUNK_SIZE * CHUNK_SIZE];
 };
 
 struct Chunk* chunk__new();
 void chunk__delete(struct Chunk*);
 
 struct World {
+	long int seed;
+
 	struct {
 		size_t size;
 		struct World__Hash_entry {
@@ -30,7 +32,7 @@ struct World {
 	} _world[WORLD_HASHMAP_SIZE];
 };
 
-struct World* world__new();
+struct World* world__new(long int seed);
 void world__delete(struct World*);
 
 #endif // WORLD_H_

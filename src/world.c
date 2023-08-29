@@ -3,6 +3,7 @@
 #include "world.h"
 #include "main.h"
 #include "block.h"
+#include "noise.h"
 
 struct Chunk* chunk__new() {
 	struct Chunk* chunk = malloc(sizeof(struct Chunk));
@@ -12,22 +13,24 @@ struct Chunk* chunk__new() {
 
 	chunk->last_used = 0;
 
-	chunk->chunk = malloc(sizeof(struct Block) * CHUNK_SIZE * CHUNK_SIZE);
-	if (chunk->chunk == NULL) {
-		return NULL;
-	}
+	// chunk->chunk = malloc(sizeof(struct Block) * CHUNK_SIZE * CHUNK_SIZE);
+	// if (chunk->chunk == NULL) {
+	// 	return NULL;
+	// }
 
 	return chunk;
 }
 void chunk__delete(struct Chunk*);
 
-struct World* world__new() {
+struct World* world__new(long int seed) {
 	struct World* world = malloc(sizeof(struct World));
 	if (world == NULL) {
 		return NULL;
 	}
 
 	memset(world->_world, 0, sizeof(world->_world));
+
+	world->seed = seed;
 
 	return world;
 }
@@ -62,3 +65,25 @@ struct Chunk* world__get_chunk(struct World* world, int x, int y) {
 	return NULL;
 }
 
+struct Chunk* world__gen_chunk(struct World* world, int x, int y) {
+	struct Chunk* chunk = chunk__new();
+	if (chunk == NULL) {
+		return NULL;
+	}
+
+	for (size_t bx_i = 0; bx_i < CHUNK_SIZE; bx_i++) {
+		int bx = x * CHUNK_SIZE + bx_i;
+		int height = noise__gen_ground(world->seed, bx, CHUNK_SIZE) - y * CHUNK_SIZE;
+		for (size_t by_i = 0; by_i < CHUNK_SIZE; by_i++) {
+			int by = y * CHUNK_SIZE + by_i;
+
+			if (by < height) {
+				block__set_name(&chunk->chunk[by_i * CHUNK_SIZE + bx_i], "grass");
+			} else {
+				block__set(&chunk->chunk[by_i * CHUNK_SIZE + bx_i], 0);
+			}
+		}
+	}
+
+	return chunk;
+}
