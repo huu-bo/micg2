@@ -1,6 +1,7 @@
 #ifndef BLOCK_H_
 #define BLOCK_H_
 
+#include <stdlib.h>
 #include <SDL2/SDL.h>
 
 #define MAX_BLOCKS 10
@@ -39,9 +40,13 @@ struct Block_type {
 
 	struct Block_texture texture;
 
-	unsigned int max_support;
+	int max_support;
+
+	int solid;
+	int fluid;
 };
 
 extern struct Block_type block_types[MAX_BLOCKS];
+extern size_t block_types_size;
 
 #endif // BLOCK_H_
