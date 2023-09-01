@@ -4,7 +4,10 @@
 #include "math.h"
 
 static int random(int seed, int x) {
-	return mod((seed + x) * 6969, 420);
+	// return mod((seed + x) * 6969, 420);
+	return mod((seed + x) * 653, 401)*2
+	     + mod((seed + x) * 509, 389)*3
+	     - mod((seed + x) * 11, 97)*10;
 }
 
 static unsigned long int lcg(unsigned long int seed) {
@@ -26,5 +29,5 @@ static int interpolate(int a, int b, float t) {
 }
 
 int noise__gen_ground(int seed, int x) {
-	return random(seed, x) / 10;
+	return random(seed, x) / 100;
 }
