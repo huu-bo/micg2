@@ -8,8 +8,8 @@
 struct World;
 struct Chunk;
 
-#define WORLD_HASHMAP_SIZE 1024
-#define WORLD_HASH_ROW 10
+#define WORLD_HASHMAP_SIZE 8  // 1024
+#define WORLD_HASH_ROW 2  // 10
 #define CHUNK_SIZE 40
 
 struct Chunk {
@@ -34,5 +34,7 @@ struct World {
 
 struct World* world__new(long int seed);
 void world__delete(struct World*);
+
+struct Block* world__get(struct World*, int x, int y);
 
 #endif // WORLD_H_

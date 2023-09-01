@@ -15,6 +15,7 @@ struct Connect_texture;
 struct Single_texture;
 
 int load_blocks();
+void free_blocks();
 
 struct Block {
 	unsigned int type;
@@ -36,7 +37,7 @@ struct Block_texture {
 };
 
 struct Block_type {
-	const char* name;
+	char* name;
 
 	struct Block_texture texture;
 
@@ -48,5 +49,7 @@ struct Block_type {
 
 extern struct Block_type block_types[MAX_BLOCKS];
 extern size_t block_types_size;
+
+SDL_Surface* block_type__get_texture(unsigned int neighbours, size_t* len);
 
 #endif // BLOCK_H_

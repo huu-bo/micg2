@@ -1,9 +1,10 @@
 #include <math.h>
 
 #include "noise.h"
+#include "math.h"
 
 static int random(int seed, int x) {
-	return (seed + x) * 6969 % 420;
+	return mod((seed + x) * 6969, 420);
 }
 
 static unsigned long int lcg(unsigned long int seed) {

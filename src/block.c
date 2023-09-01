@@ -8,14 +8,36 @@
 
 #include "block.h"
 
-int block__set(struct Block* block, unsigned int type) {}
-int block__set_name(struct Block* block, char* type_name) {}
+int block__set(struct Block* block, unsigned int type) {
+	block->type = type;
+	if (type == 0) {
+		block->texture_cache = (void*)1;
+	} else {
+		if (type > MAX_BLOCKS || type > block_types_size) {
+			fprintf(stderr, "unknown block type %d\n", type);
+			return 1;
+		}
+
+		block->texture_cache = NULL;
+	}
+
+	return 0;
+}
+int block__set_name(struct Block* block, char* type_name) {
+	for (size_t i = 1; i < block_types_size; i++) {
+		if (strcmp(type_name, block_types[i].name) == 0) {
+			return block__set(block, i);
+		}
+	}
+
+	return 1;
+}
 
 static struct Texture_file* read_dir(const char* path, size_t* size);
 static int parse_block(const char* path);
 
 struct Block_type block_types[MAX_BLOCKS];
-size_t block_types_size;
+size_t block_types_size = 1;
 
 struct Texture_file {
 	const char* path;
@@ -84,6 +106,7 @@ int load_blocks() {
 			}
 		}
 	}
+	closedir(dp);
 
 	return 0;
 }
@@ -216,13 +239,46 @@ static int parse_block(const char* path) {
 	char lhs[PARSE_LINE_SIZE];
 	char rhs[PARSE_LINE_SIZE];
 
-	while(fgets(line, PARSE_LINE_SIZE-1, file)) {
-		struct Block_type type;
+	struct Block_type type;
+
 		type.max_support = -1;
-		type.name = NULL;
 
 		memset(&type.texture, 0, sizeof(type.texture));
 
+	{
+		size_t name_size = 32;
+		char* name = malloc(name_size);
+
+		size_t path_len = strlen(path);
+
+		enum {EXTENSION, NAME} state = EXTENSION;
+		name[name_size-1] = 0;
+		size_t j = name_size - 2;
+		for (size_t i = path_len-1; i > 0; i--) {
+			if (path_len-i >= name_size) {
+				fprintf(stderr, "name too long\n");
+				return 1;
+			}
+
+			if (state == EXTENSION) {
+				if (path[i] == '.') {
+					state = NAME;
+				}
+			} else if (state == NAME) {
+				if (path[i] == '/') {
+					break;
+				}
+
+				name[j] = path[i];
+			}
+
+			j--;
+		}
+		printf("name = '%s'\n", name + j + 1);
+
+		type.name = name + j + 1;  // TODO: reverse order to allow free'ing
+	}
+	while(fgets(line, PARSE_LINE_SIZE-1, file)) {
 		// printf("parse: %s", line);
 
 		enum {LHS, RHS} state = LHS;
@@ -265,4 +321,14 @@ static int parse_block(const char* path) {
 	// TODO
 	return 0;
 }
+
+void free_blocks() {
+	for (size_t i = 1; i < block_types_size; i++) {
+		free(block_types[i].name);
+
+		// TODO: free block_types[i].texture
+	}
+}
+
+SDL_Surface* block_type__get_texture(unsigned int neighbours, size_t* len);
 

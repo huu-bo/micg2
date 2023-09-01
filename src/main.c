@@ -27,7 +27,12 @@ SDL_Renderer* render = NULL;
  #warning "size of not factor ten results in ugly pixel art"
 #endif
 
+extern int test_world();
 int main() {
+	if (test_world() != 0) {
+		return 1;
+	}
+
 	int error = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	if (error != 0) {
 		const char* e  = SDL_GetError();
@@ -73,7 +78,10 @@ int main() {
 		return 1;
 	}
 
-	load_blocks();
+	if (load_blocks() != 0) {
+		fprintf(stderr, "failed to load blocks\n");
+		return 1;
+	}
 
 	// if (start_physics() != 0) {
 	// 	SDL_Quit();
@@ -93,8 +101,11 @@ int main() {
 #endif
 
 	world__delete(world);
+	free_blocks();
 	SDL_Quit();
 }
+
+int px = 0, py = 0;
 
 #ifdef __EMSCRIPTEN__
  void
@@ -119,13 +130,40 @@ main_loop(void) {
 		}
 	}
 
-//	for (int y = 0; y < CHUNK_SIZE; y++) {
-//		for (int x = 0; x < CHUNK_SIZE; x++) {
-//			SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
-//			SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
-//			SDL_RenderFillRect(render, &r);
-//		}
-//	}
+	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+	SDL_RenderFillRect(render, NULL);
+
+	const uint8_t* keys = SDL_GetKeyboardState(NULL);
+
+	if (keys[SDL_SCANCODE_W]) {
+		py--;
+	}
+	if (keys[SDL_SCANCODE_S]) {
+		py++;
+	}
+	if (keys[SDL_SCANCODE_A]) {
+		px--;
+	}
+	if (keys[SDL_SCANCODE_D]) {
+		px++;
+	}
+
+	for (int y = 0; y < CHUNK_SIZE; y++) {
+		for (int x = 0; x < CHUNK_SIZE; x++) {
+			struct Block* b = world__get(world, x + px, y + py);
+			if (b == NULL) {
+				SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
+				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
+				SDL_RenderFillRect(render, &r);
+			}
+
+			if (b->texture_cache == NULL) {
+				SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
+				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
+				SDL_RenderFillRect(render, &r);
+			}
+		}
+	}
 
 	SDL_RenderPresent(render);
 
