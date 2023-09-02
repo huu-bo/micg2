@@ -71,7 +71,7 @@ int main() {
 		return 1;
 	}
 
-	world = world__new(0);  // TODO: allow user to enter seed
+	world = world__new(21);  // TODO: allow user to enter seed
 	if (world == NULL) {
 		fprintf(stderr, "error creating world\n");
 

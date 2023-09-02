@@ -34,7 +34,8 @@ struct World* world__new(long int seed) {
 
 	memset(world->_world, 0, sizeof(world->_world));
 
-	world->seed = seed;
+	noise__populate(&world->seeds, seed);
+	// world->seed = seed;
 
 	return world;
 }
@@ -82,10 +83,10 @@ struct Chunk* world__gen_chunk(struct World* world, int x, int y) {
 	printf("generating chunk %d %d\n", x, y);
 	for (size_t bx_i = 0; bx_i < CHUNK_SIZE; bx_i++) {
 		int bx = x * CHUNK_SIZE + (signed)bx_i;
-		int height = noise__gen_ground(world->seed, bx);
+		int height = noise__gen_ground(world->seeds, bx);
 		for (size_t by_i = 0; by_i < CHUNK_SIZE; by_i++) {
 			int by = y * CHUNK_SIZE + (signed)by_i;
-			// if (bx_i == 1) { printf("\ty: %d by: %d height: %d\n", y, by, height); }
+			// if (by_i == 1) { printf("\tbx: %d height: %d\n", bx, height); }
 
 			if (by > height) {
 				block__set_name(&chunk->chunk[by_i * CHUNK_SIZE + bx_i], "grass");

@@ -1,9 +1,10 @@
 #ifndef WORLD_H_
 #define WORLD_H_
 
-#include <stdlib.h>
+#include <stddef.h>
 
 #include "block.h"
+#include "noise.h"
 
 struct World;
 struct Chunk;
@@ -21,7 +22,8 @@ struct Chunk* chunk__new();
 void chunk__delete(struct Chunk*);
 
 struct World {
-	long int seed;
+	// long int seed;
+	struct Seeds seeds;
 
 	struct {
 		size_t size;
