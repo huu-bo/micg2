@@ -37,6 +37,9 @@ build/%.o: src/%.c src/test.h Makefile | build
 build:
 	mkdir build
 
+.PHONY: full
+full: clean micg
+
 .PHONY: clean
 clean:
 	rm -fv $(OBJFILES)

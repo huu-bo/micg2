@@ -9,8 +9,8 @@
 struct World;
 struct Chunk;
 
-#define WORLD_HASHMAP_SIZE 8  // 1024
-#define WORLD_HASH_ROW 2  // 10
+#define WORLD_HASHMAP_SIZE 1024  // 1024
+#define WORLD_HASH_ROW 10  // 10
 #define CHUNK_SIZE 40
 
 struct Chunk {
