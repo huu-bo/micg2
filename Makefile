@@ -4,7 +4,9 @@ CFLAGS = -Wall -pedantic -std=c99
 LDFLAGS = -lm
 
 ifeq (platform, $(TARGET))
+ifndef CC
 	CC = gcc
+endif
 	EXE = micg
 
 	CFLAGS += -ggdb

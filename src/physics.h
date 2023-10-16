@@ -1,6 +1,6 @@
 #ifndef PHYSICS_H_
 #define PHYSICS_H_
 
-int start_physics();
+void update_physics(void);
 
 #endif // PHYSICS_H_

@@ -151,15 +151,18 @@ main_loop(void) {
 	for (int y = 0; y < CHUNK_SIZE; y++) {
 		for (int x = 0; x < CHUNK_SIZE; x++) {
 			struct Block* b = world__get(world, x + px, y + py);
+			SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
 			if (b == NULL) {
-				SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
 				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
 				SDL_RenderFillRect(render, &r);
+				continue;
 			}
 
 			if (b->texture_cache == NULL) {
-				SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
 				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
+				SDL_RenderFillRect(render, &r);
+			} else if (b->texture_cache == (void*)1) {
+				SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
 				SDL_RenderFillRect(render, &r);
 			}
 		}

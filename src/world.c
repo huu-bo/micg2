@@ -104,7 +104,7 @@ static void world__set_chunk(struct World* world, struct Chunk* c, int x, int y)
 	size_t size = world->_world[v].size;
 	struct World__Hash_entry** e = &world->_world[v].chunks;
 
-	printf("re-allocating %lu to %lu\n", size, size+1);
+	printf("re-allocating %lu to %lu\n", size, size+1); // TODO: a standardised way to report hash-map performance
 
 	(*e) = realloc(*e, (size+1) * sizeof(struct World__Hash_entry));
 	if ((*e) == NULL) {

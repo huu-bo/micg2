@@ -97,7 +97,7 @@ static int filter__get(struct Filter* filter, struct Seeds seeds, int x) {
 			prev_value = filter__get(filter, seeds, prev_x);  // TODO: make this not be recursive
 		} else {
 			fprintf(stderr, "filter: value does not exist\n");
-			prev_value = 0;
+			prev_value = filter->gen(seeds, x);
 		}
 	}
 

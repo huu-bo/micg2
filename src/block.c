@@ -5,8 +5,14 @@
 #include <dirent.h>
 #include <errno.h>
 #include <string.h>
+#include <SDL2/SDL.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 #include "block.h"
+
+#define BLOCK_PATH_SIZE 128
 
 int block__set(struct Block* block, unsigned int type) {
 	block->type = type;
@@ -37,7 +43,7 @@ static struct Texture_file* read_dir(const char* path, size_t* size);
 static int parse_block(const char* path);
 
 struct Block_type block_types[MAX_BLOCKS];
-size_t block_types_size = 1;
+size_t block_types_size = 1;  // the first one is air
 
 struct Texture_file {
 	const char* path;
@@ -276,7 +282,14 @@ static int parse_block(const char* path) {
 		}
 		printf("name = '%s'\n", name + j + 1);
 
-		type.name = name + j + 1;  // TODO: reverse order to allow free'ing
+		type.name = malloc(path_len /* - j */);
+		if (type.name == NULL) {
+			return 1;
+		}
+
+		strcpy(type.name, name + j + 1);
+		// type.name = name + j + 1;
+		free(name);
 	}
 	while(fgets(line, PARSE_LINE_SIZE-1, file)) {
 		// printf("parse: %s", line);
@@ -312,13 +325,46 @@ static int parse_block(const char* path) {
 			fprintf(stderr, "unknown key '%s' in file '%s'\n", lhs, path);
 			return 1;
 		}
+	}
 
-		memcpy(&block_types[block_types_size], &type, sizeof(type));
+	memcpy(&block_types[block_types_size], &type, sizeof(type));
+	block_types_size++;
+	if (block_types_size > MAX_BLOCKS) {
+		fprintf(stderr, "WARNING: too many blocks, increase MAX_BLOCKS\n");
+		return 1;
 	}
 
 	fclose(file);
 
-	// TODO
+	// TODO: load textures
+
+	{
+		char path[BLOCK_PATH_SIZE];
+		const char* pre = "mod/blocks/assets/grass";  // TODO: does not work on windows
+
+		strncpy(path, pre, BLOCK_PATH_SIZE);
+
+		DIR* dp;
+		struct dirent* ep;
+
+		dp = opendir(path);
+		if (dp == NULL) {
+			fprintf(stderr, "opendir(\"%s\") [%d %s]\n", path, errno, strerror(errno));
+
+			return 1;
+		}
+
+		while ((ep = readdir(dp))) {
+			if (ep->d_name[0] == '.') {
+				continue;
+			}
+
+			puts(ep->d_name);
+		}
+
+		closedir(dp);
+	}
+
 	return 0;
 }
 
