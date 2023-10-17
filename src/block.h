@@ -50,6 +50,11 @@ struct Block_type {
 extern struct Block_type block_types[MAX_BLOCKS];
 extern size_t block_types_size;
 
-SDL_Surface* block_type__get_texture(unsigned int neighbours, size_t* len);
+// block_types is types of neighbours, 0 is above and block_type is type of block to be rendered.
+SDL_Surface* block_type__get_texture(unsigned int block_types[8], unsigned int block_type);
+
+struct Single_texture {
+	SDL_Surface* texture;
+};
 
 #endif // BLOCK_H_

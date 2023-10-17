@@ -7,10 +7,12 @@
 #include <string.h>
 #include <SDL2/SDL.h>
 
+#define STBI_MAX_DIMENSIONS 2048
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include "block.h"
+#include "main.h"
 
 #define BLOCK_PATH_SIZE 128
 
@@ -231,6 +233,8 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 	return files;
 }
 
+unsigned char* resize_image(const unsigned char* image, unsigned int in_size, unsigned int factor);
+
 static int parse_block(const char* path) {
 	FILE* file = fopen(path, "r");
 	if (file == NULL) {
@@ -276,9 +280,8 @@ static int parse_block(const char* path) {
 				}
 
 				name[j] = path[i];
+				j--;
 			}
-
-			j--;
 		}
 		printf("name = '%s'\n", name + j + 1);
 
@@ -340,12 +343,24 @@ static int parse_block(const char* path) {
 
 	{
 		char path[BLOCK_PATH_SIZE];
-		const char* pre = "mod/blocks/assets/grass";  // TODO: does not work on windows
+		const char* pre = "mod/blocks/assets/";  // TODO: does not work on windows
 
 		strncpy(path, pre, BLOCK_PATH_SIZE);
 
 		DIR* dp;
 		struct dirent* ep;
+
+		if (strlen(type.name) >= sizeof(path) - strlen(pre) + 1 /* +1 for '/' */) {
+			fprintf(stderr, "block name '%s' is too long\n", type.name);
+		}
+
+		strcat(path, type.name);
+
+		{
+			size_t length = strlen(path);
+			path[length] = '/';  // bounds check done above
+			path[length+1] = 0;
+		}
 
 		dp = opendir(path);
 		if (dp == NULL) {
@@ -359,13 +374,96 @@ static int parse_block(const char* path) {
 				continue;
 			}
 
-			puts(ep->d_name);
+			size_t type_name_length = strlen(type.name);
+			if (strncmp(type.name, ep->d_name, type_name_length) != 0) {
+				continue;
+			}
+
+			size_t dir_name_length = strlen(ep->d_name);
+			if (dir_name_length <= type_name_length) {
+				continue;
+			}
+
+			char file_path[BLOCK_PATH_SIZE];
+			strcpy(file_path, path);
+
+			if (strlen(file_path) + dir_name_length >= sizeof(file_path)) {
+				fprintf(stderr, "filename too long\n");
+				continue;
+			}
+			strcat(file_path, ep->d_name);
+
+			int width, height;
+			unsigned char* image_raw = stbi_load(file_path, &width, &height, NULL, STBI_rgb_alpha);
+			if (image_raw == NULL) {
+				fprintf(stderr, "loading image '%s' failed, '%s'\n", file_path, stbi_failure_reason());
+				continue;
+			}
+			printf("\timage size: %d %d\n", width, height);
+
+			unsigned char* image_scaled;
+			if (width == SIZE && height == SIZE) {
+				printf("WARNING: image '%s' does not work on smaller screens\n", file_path);
+				image_scaled = image_raw;
+			} else if (width == 10 && height == 10) {
+				image_scaled = resize_image(image_raw, 10, SIZE / 10);
+				free(image_raw);
+			} else {
+				fprintf(stderr, "image '%s' does not have the right size, it should be 10x10\n", file_path);
+				free(image_raw);
+				continue;
+			}
+
+			SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 8*4, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+			if (image == NULL) {
+				fprintf(stderr, "turning image to surface failed for '%s':\n\t%s\n", file_path, SDL_GetError());
+				continue;
+			}
+
+			if (ep->d_name[type_name_length] == '.') {
+				printf("normal texture '%s'\n", ep->d_name);
+
+				type.texture.single = malloc(sizeof(*type.texture.single));
+				if (type.texture.single == NULL) {
+					fprintf(stderr, "malloc failed\n");
+
+					SDL_FreeSurface(image);
+					free(image_scaled);
+					continue;
+				}
+
+				type.texture.single->texture = image;
+				continue;
+			}
+
+			size_t extra_characters = dir_name_length - type_name_length;
 		}
 
 		closedir(dp);
 	}
 
 	return 0;
+}
+
+unsigned char* resize_image(const unsigned char* in, unsigned int in_size, unsigned int factor) {
+	if (in == NULL || factor == 0 || in_size % 10 != 0) {
+		return NULL;
+	}
+
+	unsigned int size = in_size * factor;
+
+	unsigned char* out = malloc(size*size);
+	if (out == NULL) {
+		return NULL;
+	}
+
+	for (unsigned int out_y = 0; out_y < size; out_y++) {
+		for (unsigned int out_x = 0; out_x < size; out_x++) {
+			out[out_y*size + out_x] = in[out_y/factor*size + out_x/factor];
+		}
+	}
+
+	return out;
 }
 
 void free_blocks() {
@@ -376,5 +474,11 @@ void free_blocks() {
 	}
 }
 
-SDL_Surface* block_type__get_texture(unsigned int neighbours, size_t* len);
+SDL_Surface* block_type__get_texture(unsigned int b_types[8], unsigned int block_type) {
+	struct Block_type* type = &block_types[block_type];
+
+	printf("get_texture: %s\n", type->name);
+
+	return NULL;
+}
 

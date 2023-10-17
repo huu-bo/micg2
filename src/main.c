@@ -22,9 +22,10 @@ struct World* world;
  main_loop(void);
 
 SDL_Renderer* render = NULL;
+SDL_Surface* window_surface = NULL;
 
 #if SIZE % 10 != 0
- #warning "size of not factor ten results in ugly pixel art"
+ #warning "size of not factor ten results in textures not loading"
 #endif
 
 extern int test_world();
@@ -71,6 +72,15 @@ int main() {
 		return 1;
 	}
 
+	window_surface = SDL_GetWindowSurface(window);
+	if (window_surface == NULL) {
+		const char* e  = SDL_GetError();
+
+		fprintf(stderr, "error getting window_surface\n\t%s", e);
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error getting window_surface", e, NULL);
+		return 1;
+	}
+
 	world = world__new(21);  // TODO: allow user to enter seed
 	if (world == NULL) {
 		fprintf(stderr, "error creating world\n");
@@ -105,7 +115,7 @@ int main() {
 	SDL_Quit();
 }
 
-int px = 0, py = 0;
+int px = 0, py = 500;
 
 #ifdef __EMSCRIPTEN__
  void
@@ -159,11 +169,15 @@ main_loop(void) {
 			}
 
 			if (b->texture_cache == NULL) {
+				b->texture_cache = block_type__get_texture(0, b->type);
+
 				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
 				SDL_RenderFillRect(render, &r);
 			} else if (b->texture_cache == (void*)1) {
 				SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
 				SDL_RenderFillRect(render, &r);
+			} else {
+				SDL_BlitSurface(b->texture_cache, NULL, window_surface, &r);
 			}
 		}
 	}
