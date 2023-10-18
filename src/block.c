@@ -235,6 +235,14 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 
 unsigned char* resize_image(const unsigned char* image, unsigned int in_size, unsigned int factor);
 
+void format_surface(unsigned char* image, unsigned int size) {
+	for (unsigned int i = 0; i < size*size*4; i+=4) {
+		unsigned char temp = image[i];
+		image[i] = image[i+2];
+		image[i+2] = temp;
+	}
+}
+
 static int parse_block(const char* path) {
 	FILE* file = fopen(path, "r");
 	if (file == NULL) {
@@ -330,13 +338,6 @@ static int parse_block(const char* path) {
 		}
 	}
 
-	memcpy(&block_types[block_types_size], &type, sizeof(type));
-	block_types_size++;
-	if (block_types_size > MAX_BLOCKS) {
-		fprintf(stderr, "WARNING: too many blocks, increase MAX_BLOCKS\n");
-		return 1;
-	}
-
 	fclose(file);
 
 	// TODO: load textures
@@ -393,17 +394,19 @@ static int parse_block(const char* path) {
 			}
 			strcat(file_path, ep->d_name);
 
-			int width, height;
-			unsigned char* image_raw = stbi_load(file_path, &width, &height, NULL, STBI_rgb_alpha);
+			int width, height, depth;
+			unsigned char* image_raw = stbi_load(file_path, &width, &height, &depth, 4);
 			if (image_raw == NULL) {
 				fprintf(stderr, "loading image '%s' failed, '%s'\n", file_path, stbi_failure_reason());
 				continue;
 			}
-			printf("\timage size: %d %d\n", width, height);
+			printf("\timage size: %d %d, depth: %d\n", width, height, depth);
 
 			unsigned char* image_scaled;
 			if (width == SIZE && height == SIZE) {
-				printf("WARNING: image '%s' does not work on smaller screens\n", file_path);
+				if (SIZE != 10) {
+					printf("WARNING: image '%s' does not work on smaller screens\n", file_path);
+				}
 				image_scaled = image_raw;
 			} else if (width == 10 && height == 10) {
 				image_scaled = resize_image(image_raw, 10, SIZE / 10);
@@ -414,9 +417,18 @@ static int parse_block(const char* path) {
 				continue;
 			}
 
-			SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 8*4, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+			format_surface(image_scaled, SIZE);
+
+			// SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 8*4, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+			SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 4*SIZE, 0, 0, 0, 0x000000FF);
 			if (image == NULL) {
 				fprintf(stderr, "turning image to surface failed for '%s':\n\t%s\n", file_path, SDL_GetError());
+				continue;
+			}
+			SDL_Texture* texture = SDL_CreateTextureFromSurface(render, image);
+			SDL_FreeSurface(image);
+			if (texture == NULL) {
+				fprintf(stderr, "turning surface to texture failed for '%s':\n\t%s\n", file_path, SDL_GetError());
 				continue;
 			}
 
@@ -428,11 +440,12 @@ static int parse_block(const char* path) {
 					fprintf(stderr, "malloc failed\n");
 
 					SDL_FreeSurface(image);
+					SDL_DestroyTexture(texture);
 					free(image_scaled);
 					continue;
 				}
 
-				type.texture.single->texture = image;
+				type.texture.single->texture = texture;
 				continue;
 			}
 
@@ -440,6 +453,13 @@ static int parse_block(const char* path) {
 		}
 
 		closedir(dp);
+	}
+
+	memcpy(&block_types[block_types_size], &type, sizeof(type));
+	block_types_size++;
+	if (block_types_size > MAX_BLOCKS) {
+		fprintf(stderr, "WARNING: too many blocks, increase MAX_BLOCKS\n");
+		return 1;
 	}
 
 	return 0;
@@ -452,14 +472,22 @@ unsigned char* resize_image(const unsigned char* in, unsigned int in_size, unsig
 
 	unsigned int size = in_size * factor;
 
-	unsigned char* out = malloc(size*size);
+	unsigned char* out = malloc(size*size*4);
 	if (out == NULL) {
 		return NULL;
 	}
 
 	for (unsigned int out_y = 0; out_y < size; out_y++) {
 		for (unsigned int out_x = 0; out_x < size; out_x++) {
-			out[out_y*size + out_x] = in[out_y/factor*size + out_x/factor];
+			// out[out_y*size + out_x] = in[out_y/factor*size + out_x/factor];
+			// for (unsigned int i = 0; i < 4; i++) {
+			//	out[(out_y*size + out_x)*4+i] = 0xFF;
+			// }
+			// out[out_y*size + out_x] = 0xFF;
+			for (unsigned int i = 0; i < 4; i++) {
+				out[(out_y*size + out_x)*4+i] = in[(out_y/factor*in_size + out_x/factor)*4+i];
+				printf("\t%d, %d @ (%d; %d)\n", i, (out_y/factor*in_size + out_x/factor)*4+i, out_x, out_y);
+			}
 		}
 	}
 
@@ -474,10 +502,15 @@ void free_blocks() {
 	}
 }
 
-SDL_Surface* block_type__get_texture(unsigned int b_types[8], unsigned int block_type) {
+SDL_Texture* block_type__get_texture(unsigned int b_types[8], unsigned int block_type) {
 	struct Block_type* type = &block_types[block_type];
 
-	printf("get_texture: %s\n", type->name);
+	// printf("get_texture: %s\n", type->name);
+
+	// TODO: connected textures
+	if (type->texture.single != NULL) {
+		return type->texture.single->texture;
+	}
 
 	return NULL;
 }

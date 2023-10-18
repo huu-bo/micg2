@@ -22,7 +22,7 @@ struct Block {
 
 	unsigned int support;
 
-	SDL_Surface* texture_cache;
+	SDL_Texture* texture_cache;
 };
 
 // struct Block* block__new(char* type_name);
@@ -51,10 +51,10 @@ extern struct Block_type block_types[MAX_BLOCKS];
 extern size_t block_types_size;
 
 // block_types is types of neighbours, 0 is above and block_type is type of block to be rendered.
-SDL_Surface* block_type__get_texture(unsigned int block_types[8], unsigned int block_type);
+SDL_Texture* block_type__get_texture(unsigned int block_types[8], unsigned int block_type);
 
 struct Single_texture {
-	SDL_Surface* texture;
+	SDL_Texture* texture;
 };
 
 #endif // BLOCK_H_
