@@ -150,7 +150,10 @@ main_loop(void) {
 
 	for (int y = 0; y < CHUNK_SIZE; y++) {
 		for (int x = 0; x < CHUNK_SIZE; x++) {
-			struct Block* b = world__get(world, x + px, y + py);
+			int bx = x + px;
+			int by = y + py;
+
+			struct Block* b = world__get(world, bx, by);
 			SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
 			if (b == NULL) {
 				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
@@ -158,15 +161,19 @@ main_loop(void) {
 				continue;
 			}
 
+			SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+			SDL_RenderFillRect(render, &r);
+
+			r.x = x * SIZE;
+			r.y = y * SIZE;
+			r.w = r.h = SIZE;
+
 			if (b->texture_cache == NULL) {
-				b->texture_cache = block_type__get_texture(0, b->type);
+				b->texture_cache = block_type__get_texture(world, bx, by);
 
 				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
 				SDL_RenderFillRect(render, &r);
-			} else if (b->texture_cache == (void*)1) {
-				SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-				SDL_RenderFillRect(render, &r);
-			} else {
+			} else if (b->texture_cache != (void*)1) {
 				SDL_RenderCopy(render, b->texture_cache, NULL, &r);
 			}
 		}

@@ -22,7 +22,7 @@ else
 	EXE = micg
 endif
 
-SRCFILES = main.c world.c block.c noise.c
+SRCFILES = main.c world.c block.c noise.c texture.c
 
 OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))
 

@@ -405,7 +405,7 @@ static int parse_block(const char* path) {
 			unsigned char* image_scaled;
 			if (width == SIZE && height == SIZE) {
 				if (SIZE != 10) {
-					printf("WARNING: image '%s' does not work on smaller screens\n", file_path);
+					fprintf(stderr, "WARNING: image '%s' does not work on smaller screens\n", file_path);
 				}
 				image_scaled = image_raw;
 			} else if (width == 10 && height == 10) {
@@ -486,7 +486,6 @@ unsigned char* resize_image(const unsigned char* in, unsigned int in_size, unsig
 			// out[out_y*size + out_x] = 0xFF;
 			for (unsigned int i = 0; i < 4; i++) {
 				out[(out_y*size + out_x)*4+i] = in[(out_y/factor*in_size + out_x/factor)*4+i];
-				printf("\t%d, %d @ (%d; %d)\n", i, (out_y/factor*in_size + out_x/factor)*4+i, out_x, out_y);
 			}
 		}
 	}
@@ -500,18 +499,5 @@ void free_blocks() {
 
 		// TODO: free block_types[i].texture
 	}
-}
-
-SDL_Texture* block_type__get_texture(unsigned int b_types[8], unsigned int block_type) {
-	struct Block_type* type = &block_types[block_type];
-
-	// printf("get_texture: %s\n", type->name);
-
-	// TODO: connected textures
-	if (type->texture.single != NULL) {
-		return type->texture.single->texture;
-	}
-
-	return NULL;
 }
 
