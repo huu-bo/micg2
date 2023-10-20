@@ -1,6 +1,8 @@
 TARGET=platform# platform or web
 
-CFLAGS = -Wall -pedantic -std=c99
+GIT_VERSION = "$(shell git describe --dirty --always --tags)"
+
+CFLAGS = -Wall -pedantic -std=c99 -DGIT_VERSION='$(GIT_VERSION)'
 LDFLAGS = -lm
 
 ifeq (platform, $(TARGET))

@@ -10,6 +10,11 @@
 #include "world.h"
 #include "block.h"
 
+#ifndef GIT_VERSION
+ #warning "no git commit id"
+ #define GIT_VERSION ""
+#endif
+
 struct World* world;
 
 #define TITLE_LENGTH 128
@@ -50,7 +55,7 @@ int main() {
 			return 1;
 		}
 
-		snprintf(title, TITLE_LENGTH, TITLE " %d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		snprintf(title, TITLE_LENGTH, TITLE " %d.%d.%d " GIT_VERSION, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 		window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SIZE * CHUNK_SIZE, SIZE * CHUNK_SIZE, 0);
 	}
@@ -70,6 +75,7 @@ int main() {
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error creating renderer", e, NULL);
 		return 1;
 	}
+	// SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
 
 	world = world__new(21);  // TODO: allow user to enter seed
 	if (world == NULL) {
@@ -105,7 +111,7 @@ int main() {
 	SDL_Quit();
 }
 
-int px = 0, py = 700;
+int px = 0, py = 700 - 100;
 
 #ifdef __EMSCRIPTEN__
  void
@@ -162,7 +168,7 @@ main_loop(void) {
 			}
 
 			SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-			SDL_RenderFillRect(render, &r);
+//			SDL_RenderFillRect(render, &r);
 
 			r.x = x * SIZE;
 			r.y = y * SIZE;
