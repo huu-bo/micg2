@@ -178,7 +178,8 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 					free(b);
 				} else {
 					if (files_len * sizeof(struct Texture_file) >= files_size) {
-						files = realloc(files, files_size + sizeof(struct Texture_file));
+						files_size += sizeof(struct Texture_file);
+						files = realloc(files, files_size);
 						if (files == NULL) {
 							fprintf(stderr, "malloc failed %s:%d\n", __FILE__, __LINE__);
 							return NULL;
@@ -425,7 +426,7 @@ static int parse_block(const char* path) {
 			}
 
 			if (ep->d_name[type_name_length] == '.') {
-				printf("normal texture '%s'\n", ep->d_name);
+				printf("\t\tnormal texture '%s'\n", ep->d_name);
 
 				type.texture.single = malloc(sizeof(*type.texture.single));
 				if (type.texture.single == NULL) {
@@ -442,6 +443,28 @@ static int parse_block(const char* path) {
 			}
 
 			size_t extra_characters = dir_name_length - type_name_length;
+
+			if (extra_characters > 1 && ep->d_name[type_name_length + 1] == '.') {
+				printf("\t\tedge texture\n");
+			} else if (extra_characters > 4 && ep->d_name[type_name_length + 4] == '.') {
+				printf("\t\tconnected texture\n");
+
+				unsigned int idx = 0;
+				for (unsigned int i = type_name_length; i < type_name_length+4; i++) {
+					unsigned int j = i - type_name_length;
+					idx |= (ep->d_name[i] == '1') << (3-j);
+				}
+
+				if (type.texture.connect == NULL) {
+					type.texture.connect = malloc(sizeof(*type.texture.connect));
+					if (type.texture.connect == NULL) {
+						fprintf(stderr, "malloc failed\n");
+						return 1;
+					}
+					memset(type.texture.connect, 0, sizeof(*type.texture.connect));
+				}
+				type.texture.connect->textures[idx] = texture;
+			}
 		}
 
 		closedir(dp);

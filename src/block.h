@@ -56,4 +56,9 @@ struct Single_texture {
 	SDL_Texture* texture;
 };
 
+struct Connect_texture {
+	SDL_Texture* textures[15];
+	SDL_Texture* edge[4];
+};
+
 #endif // BLOCK_H_
