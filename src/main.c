@@ -15,6 +15,10 @@
  #define GIT_VERSION ""
 #endif
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+ #warning "big endian not supported, colors may render wrong"
+#endif
+
 struct World* world;
 
 #define TITLE_LENGTH 128
@@ -168,14 +172,14 @@ main_loop(void) {
 			}
 
 			SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-//			SDL_RenderFillRect(render, &r);
+			SDL_RenderFillRect(render, &r);
 
 			r.x = x * SIZE;
 			r.y = y * SIZE;
 			r.w = r.h = SIZE;
 
 			if (b->texture_cache == NULL) {
-				b->texture_cache = block_type__get_texture(world, bx, by);
+				b->texture_cache = world__get_texture(world, bx, by);
 
 				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
 				SDL_RenderFillRect(render, &r);

@@ -235,14 +235,6 @@ static struct Texture_file* read_dir(const char* path, size_t* size) {
 
 unsigned char* resize_image(const unsigned char* image, unsigned int in_size, unsigned int factor);
 
-void format_surface(unsigned char* image, unsigned int size) {
-	for (unsigned int i = 0; i < size*size*4; i+=4) {
-		unsigned char temp = image[i];
-		image[i] = image[i+2];
-		image[i+2] = temp;
-	}
-}
-
 static int parse_block(const char* path) {
 	FILE* file = fopen(path, "r");
 	if (file == NULL) {
@@ -417,14 +409,14 @@ static int parse_block(const char* path) {
 				continue;
 			}
 
-			format_surface(image_scaled, SIZE);
-
-			// SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 8*4, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-			SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 4*SIZE, 0, 0, 0, 0x000000FF);
+			// TODO: this is different based on endian-ness??
+			// SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 4*SIZE, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+			SDL_Surface* image = SDL_CreateRGBSurfaceFrom(image_scaled, SIZE, SIZE, 8*4, 4*SIZE, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 			if (image == NULL) {
 				fprintf(stderr, "turning image to surface failed for '%s':\n\t%s\n", file_path, SDL_GetError());
 				continue;
 			}
+
 			SDL_Texture* texture = SDL_CreateTextureFromSurface(render, image);
 			SDL_FreeSurface(image);
 			if (texture == NULL) {

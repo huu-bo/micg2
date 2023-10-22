@@ -6,7 +6,7 @@
 #include "block.h"
 #include "world.h"
 
-SDL_Texture* block_type__get_texture(struct World* world, int x, int y) {
+SDL_Texture* world__get_texture(struct World* world, int x, int y) {
 	struct Block* block = world__get(world, x, y);
 	if (block == NULL) {
 		return NULL;

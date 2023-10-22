@@ -52,9 +52,6 @@ extern size_t block_types_size;
 
 #include "world.h"
 
-// block_types is types of neighbours, 0 is above and block_type is type of block to be rendered.
-SDL_Texture* block_type__get_texture(struct World*, int x, int y);
-
 struct Single_texture {
 	SDL_Texture* texture;
 };

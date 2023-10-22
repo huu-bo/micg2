@@ -39,4 +39,7 @@ void world__delete(struct World*);
 
 struct Block* world__get(struct World*, int x, int y);
 
+
+SDL_Texture* world__get_texture(struct World*, int x, int y);
+
 #endif // WORLD_H_
