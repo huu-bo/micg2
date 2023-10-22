@@ -444,8 +444,24 @@ static int parse_block(const char* path) {
 
 			size_t extra_characters = dir_name_length - type_name_length;
 
+			if (type.texture.connect == NULL) {
+				type.texture.connect = malloc(sizeof(*type.texture.connect));
+				if (type.texture.connect == NULL) {
+					fprintf(stderr, "malloc failed\n");
+					return 1;
+				}
+				memset(type.texture.connect, 0, sizeof(*type.texture.connect));
+			}
+
 			if (extra_characters > 1 && ep->d_name[type_name_length + 1] == '.') {
 				printf("\t\tedge texture\n");
+
+				if (ep->d_name[type_name_length] > '4' || ep->d_name[type_name_length] < '1') {
+					fprintf(stderr, "invalid index '%c'\n", ep->d_name[type_name_length]);
+				}
+				unsigned int idx = ep->d_name[type_name_length] - '1';
+
+				type.texture.connect->edge[idx] = texture;
 			} else if (extra_characters > 4 && ep->d_name[type_name_length + 4] == '.') {
 				printf("\t\tconnected texture\n");
 
@@ -455,15 +471,7 @@ static int parse_block(const char* path) {
 					idx |= (ep->d_name[i] == '1') << (3-j);
 				}
 
-				if (type.texture.connect == NULL) {
-					type.texture.connect = malloc(sizeof(*type.texture.connect));
-					if (type.texture.connect == NULL) {
-						fprintf(stderr, "malloc failed\n");
-						return 1;
-					}
-					memset(type.texture.connect, 0, sizeof(*type.texture.connect));
-				}
-				type.texture.connect->textures[idx] = texture;
+				type.texture.connect->textures[idx-1] = texture;
 			}
 		}
 
