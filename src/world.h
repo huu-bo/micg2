@@ -41,5 +41,6 @@ struct Block* world__get(struct World*, int x, int y);
 
 
 SDL_Texture* world__get_texture(struct World*, int x, int y);
+extern int render_supports_targettex;
 
 #endif // WORLD_H_

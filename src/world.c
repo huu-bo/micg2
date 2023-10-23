@@ -7,6 +7,8 @@
 #include "test.h"
 #include "math.h"
 
+int render_supports_targettex = 0;
+
 struct Chunk* chunk__new() {
 	struct Chunk* chunk = malloc(sizeof(struct Chunk));
 	if (chunk == NULL) {

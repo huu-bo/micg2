@@ -333,8 +333,6 @@ static int parse_block(const char* path) {
 
 	fclose(file);
 
-	// TODO: load textures
-
 	{
 		char path[BLOCK_PATH_SIZE];
 		const char* pre = "mod/blocks/assets/";  // TODO: does not work on windows
@@ -518,9 +516,27 @@ unsigned char* resize_image(const unsigned char* in, unsigned int in_size, unsig
 
 void free_blocks() {
 	for (size_t i = 1; i < block_types_size; i++) {
-		free(block_types[i].name);
+		struct Block_type* type = &block_types[i];
 
-		// TODO: free block_types[i].texture
+		free(type->name);
+
+		if (type->texture.color) {
+			SDL_free(type->texture.color);
+		}
+		if (type->texture.single) {
+			SDL_DestroyTexture(type->texture.single->texture);
+			free(type->texture.single);
+		}
+		if (type->texture.connect) {
+			for (unsigned int i = 0; i < 16; i++) {
+				SDL_DestroyTexture(type->texture.connect->textures[i]);
+			}
+			for (unsigned int i = 0; i < 4; i++) {
+				SDL_DestroyTexture(type->texture.connect->edge[i]);
+			}
+			free(type->texture.connect);
+		}
+		// TODO: type->texture.transition
 	}
 }
 

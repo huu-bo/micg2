@@ -66,7 +66,7 @@ int main() {
 	if (window == NULL) {
 		const char* e  = SDL_GetError();
 
-		fprintf(stderr, "error creating window\n\t%s", e);
+		fprintf(stderr, "error creating window\n\t%s\n", e);
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error creating window", e, NULL);
 		return 1;
 	}
@@ -75,11 +75,25 @@ int main() {
 	if (render == NULL) {
 		const char* e  = SDL_GetError();
 
-		fprintf(stderr, "error creating renderer\n\t%s", e);
+		fprintf(stderr, "error creating renderer\n\t%s\n", e);
 		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "error creating renderer", e, NULL);
 		return 1;
 	}
 	// SDL_SetRenderDrawBlendMode(render, SDL_BLENDMODE_BLEND);
+
+	{
+		struct SDL_RendererInfo info;
+		if (SDL_GetRendererInfo(render, &info) < 0) {
+			fprintf(stderr, "error getting render info\n\t%s\n\tAssuming renderer does not support SDL_RENDERER_TARGETTEXTURE\n", SDL_GetError());
+		} else {
+			printf("using renderer '%s', %s\n", info.name, info.flags & SDL_RENDERER_ACCELERATED ? "hardware" : "software");
+			if (!(info.flags & SDL_RENDERER_TARGETTEXTURE)) {
+				fprintf(stderr, "renderer does not support SDL_RENDERER_TARGETTEXTURE\n");
+			} else {
+				render_supports_targettex = 1;
+			}
+		}
+	}
 
 	world = world__new(21);  // TODO: allow user to enter seed
 	if (world == NULL) {
