@@ -1,27 +1,28 @@
 TARGET=platform# platform or web
 
-GIT_VERSION = "$(shell git describe --dirty --always --tags)"
-
-CFLAGS = -Wall -pedantic -std=c99 -DGIT_VERSION='$(GIT_VERSION)'
+CFLAGS = -Wall -pedantic -std=c99 -DGIT_VERSION='"$(GIT_VERSION)"'
 LDFLAGS = -lm
 
+GIT_VERSION = $(shell git describe --dirty --always --tags)
+BUILD_MARKER = build/$(GIT_VERSION)-$(TARGET).build
+DEP = build/
+DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP)/$*.d
+
 ifeq (platform, $(TARGET))
-ifndef CC
 	CC = gcc
-endif
-	EXE = micg
+	EXE ?= micg
 
 	CFLAGS += -ggdb
 	LDFLAGS += -lSDL2 -ggdb
 else ifeq (web, $(TARGET))
 	CC = emcc
-	EXE = micg.html
+	EXE ?= micg.html
 
 	CFLAGS += -s USE_SDL=2 # -s USE_PTHREADS=1
-	LDFLAGS += -s USE_SDL=2 # -s USE_PTHREADS=1 --proxy-to-worker
+	LDFLAGS += -s USE_SDL=2 --preload-file mod # -s USE_PTHREADS=1 --proxy-to-worker
 else
-	CC = false
-	EXE = micg
+	CC ?= false
+	EXE ?= micg
 endif
 
 SRCFILES = main.c world.c block.c noise.c texture.c
@@ -31,15 +32,15 @@ OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))
 $(EXE): $(OBJFILES)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
-src/main.c: src/main.h src/physics.h src/world.h src/block.h
-src/world.c: src/world.h src/main.h src/block.h src/noise.h
-src/block.c: src/block.h
-
-build/%.o: src/%.c src/test.h Makefile | build
-	$(CC) $(CFLAGS) -c $< -o $@
+build/%.o: src/%.c Makefile $(BUILD_MARKER) | build
+	$(CC) $(DEPFLAGS) $(CFLAGS) -c $< -o $@
 
 build:
 	mkdir build
+
+$(BUILD_MARKER): | build
+	rm -fv build/*.build
+	touch $(BUILD_MARKER)
 
 .PHONY: full
 full: clean micg
@@ -48,5 +49,8 @@ full: clean micg
 clean:
 	rm -fv $(OBJFILES)
 	rm -frv build
-	rm -fv $(EXE) $(patsubst %.html, %.wasm, $(EXE)) $(patsubst %.html, %.js, $(EXE))
+	rm -fv $(EXE) micg.*
+
+DEPFILES := $(OBJFILES:%.o=%.d)
+include $(wildcard $(DEPFILES))
 
