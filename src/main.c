@@ -154,7 +154,7 @@ main_loop(void) {
 		}
 	}
 
-	SDL_SetRenderDrawColor(render, 0, 0, 0, 255);
+	SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
 	SDL_RenderFillRect(render, NULL);
 
 	const uint8_t* keys = SDL_GetKeyboardState(NULL);
@@ -185,12 +185,12 @@ main_loop(void) {
 				continue;
 			}
 
-			SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-			SDL_RenderFillRect(render, &r);
+			// SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+			// SDL_RenderFillRect(render, &r);
 
-			r.x = x * SIZE;
-			r.y = y * SIZE;
-			r.w = r.h = SIZE;
+			// r.x = x * SIZE;
+			// r.y = y * SIZE;
+			// r.w = r.h = SIZE;
 
 			if (b->texture_cache == NULL) {
 				b->texture_cache = world__get_texture(world, bx, by);
