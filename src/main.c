@@ -119,8 +119,18 @@ int main() {
 #else
 	int run = 1;
 	while (run) {
+		unsigned int ticks = SDL_GetTicks();
 		run = main_loop();
-		SDL_Delay(16); // TODO: measure time and change delay
+
+		{
+			unsigned int delay = 16 - (SDL_GetTicks() - ticks);
+			if (delay > 100) {
+				delay = 100;
+			}
+			SDL_Delay(delay);
+
+			// printf("FPS: %d\n", (int) (1 / ((float)(16 - delay) / 10.0)));
+		}
 	}
 #endif
 
