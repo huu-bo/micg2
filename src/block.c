@@ -9,6 +9,9 @@
 
 #define STBI_MAX_DIMENSIONS 2048
 #define STB_IMAGE_IMPLEMENTATION
+#ifndef RELEASE
+ #define STBI_ONLY_PNG
+#endif
 #include "stb_image.h"
 
 #include "block.h"

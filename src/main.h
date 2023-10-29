@@ -12,6 +12,9 @@
 #define VERSION_MINOR 0
 #define VERSION_PATCH 0
 
+extern int is_online;
+extern int is_server;
+
 extern struct World* world;
 extern SDL_Renderer* render;
 

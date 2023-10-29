@@ -37,6 +37,9 @@ SDL_Window* window = NULL;
  #warning "size of not factor ten results in textures not loading"
 #endif
 
+int is_online = 0;
+int is_server = 0;
+
 extern int test_world();
 int main() {
 	if (test_world() != 0) {

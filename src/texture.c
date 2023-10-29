@@ -73,6 +73,7 @@ SDL_Texture* world__get_texture(struct World* world, int x, int y) {
 					type->texture.connect->cache[0] = type->texture.single->texture;
 				}
 			} else {
+				printf("creating texture %u\n", cache);
 				/*
                                  *   😈
                                  */
