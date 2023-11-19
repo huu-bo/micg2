@@ -9,6 +9,7 @@
 #include "main.h"
 #include "world.h"
 #include "block.h"
+#include "math.h"
 
 #ifndef GIT_VERSION
  #warning "no git commit id"
@@ -20,6 +21,7 @@
 #endif
 
 struct World* world;
+struct Player* player;
 
 #define TITLE_LENGTH 128
 
@@ -110,6 +112,12 @@ int main() {
 		return 1;
 	}
 
+	player = player__new();
+	if (player == NULL) {
+		fprintf(stderr, "error creating player\n");
+		return 1;
+	}
+
 	// if (start_physics() != 0) {
 	// 	SDL_Quit();
 	// 	fprintf(stderr, "error initialising physics\n");
@@ -126,7 +134,11 @@ int main() {
 		run = main_loop();
 
 		{
-			unsigned int delay = 16 - (SDL_GetTicks() - ticks);
+			unsigned int time_took = SDL_GetTicks() - ticks;
+
+			// printf("frame time: %d\n", time_took);
+
+			unsigned int delay = 16 - time_took;
 			if (delay > 100) {
 				delay = 100;
 			}
@@ -141,8 +153,6 @@ int main() {
 	free_blocks();
 	SDL_Quit();
 }
-
-int px = 0, py = 700 - 100;
 
 #ifdef __EMSCRIPTEN__
  void
@@ -172,26 +182,26 @@ main_loop(void) {
 
 	const uint8_t* keys = SDL_GetKeyboardState(NULL);
 
-	if (keys[SDL_SCANCODE_W]) {
-		py--;
-	}
-	if (keys[SDL_SCANCODE_S]) {
-		py++;
-	}
-	if (keys[SDL_SCANCODE_A]) {
-		px--;
-	}
-	if (keys[SDL_SCANCODE_D]) {
-		px++;
-	}
+	player__update(player,
+		keys[SDL_SCANCODE_W] << 3 |
+		keys[SDL_SCANCODE_A] << 2 |
+		keys[SDL_SCANCODE_S] << 1 |
+		keys[SDL_SCANCODE_D] << 0
+	);
 
-	for (int y = 0; y < CHUNK_SIZE; y++) {
-		for (int x = 0; x < CHUNK_SIZE; x++) {
-			int bx = x + px;
-			int by = y + py;
+	int offset_x = (int)(fmod(player->x, 1) * SIZE);
+	int offset_y = (int)(fmod(player->y, 1) * SIZE);
+
+	// printf("offset: %d %d, player_pos: %f %f\n", offset_x, offset_y, player->x, player->y);
+
+	// int offset_y = mod((int)(player->y * SIZE), SIZE);
+	for (int y = -1; y < CHUNK_SIZE+1; y++) {
+		for (int x = -1; x < CHUNK_SIZE+1; x++) {
+			int bx = x + (int)player->x;
+			int by = y + (int)player->y;
 
 			struct Block* b = world__get(world, bx, by);
-			SDL_Rect r = {x * SIZE, y * SIZE, SIZE, SIZE};
+			SDL_Rect r = {x * SIZE - offset_x, y * SIZE - offset_y, SIZE, SIZE};
 			if (b == NULL) {
 				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
 				SDL_RenderFillRect(render, &r);

@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 
 #include "world.h"
+#include "player.h"
 
 #define TITLE "micg"
 #define SIZE 20
@@ -16,6 +17,7 @@ extern int is_online;
 extern int is_server;
 
 extern struct World* world;
+extern struct Player* player;
 extern SDL_Renderer* render;
 
 #endif // MAIN_H_
