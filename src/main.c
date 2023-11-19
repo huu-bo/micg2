@@ -189,16 +189,16 @@ main_loop(void) {
 		keys[SDL_SCANCODE_D] << 0
 	);
 
-	int offset_x = (int)(fmod(player->x, 1) * SIZE);
-	int offset_y = (int)(fmod(player->y, 1) * SIZE);
+	int offset_x = (int)(fmod(player->x - 20.0, 1) * SIZE);
+	int offset_y = (int)(fmod(player->y - 20.0, 1) * SIZE);
 
 	// printf("offset: %d %d, player_pos: %f %f\n", offset_x, offset_y, player->x, player->y);
 
 	// int offset_y = mod((int)(player->y * SIZE), SIZE);
 	for (int y = -1; y < CHUNK_SIZE+1; y++) {
 		for (int x = -1; x < CHUNK_SIZE+1; x++) {
-			int bx = x + (int)player->x;
-			int by = y + (int)player->y;
+			int bx = x + (int)(player->x - 20.0);
+			int by = y + (int)(player->y - 20.0);
 
 			struct Block* b = world__get(world, bx, by);
 			SDL_Rect r = {x * SIZE - offset_x, y * SIZE - offset_y, SIZE, SIZE};
@@ -224,6 +224,12 @@ main_loop(void) {
 				SDL_RenderCopy(render, b->texture_cache, NULL, &r);
 			}
 		}
+	}
+
+	{
+		SDL_Rect rect = {20 * SIZE, 20 * SIZE, SIZE, SIZE};
+		SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
+		SDL_RenderFillRect(render, &rect);
 	}
 
 	SDL_RenderPresent(render);
