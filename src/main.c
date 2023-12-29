@@ -42,9 +42,13 @@ SDL_Window* window = NULL;
 int is_online = 0;
 int is_server = 0;
 
+float camera_x = 0.0;
+float camera_y = 0.0;
+
 extern int test_world();
 int main() {
 	if (test_world() != 0) {
+		fprintf(stderr, "world testing failed\n");
 		return 1;
 	}
 
@@ -189,16 +193,22 @@ main_loop(void) {
 		keys[SDL_SCANCODE_D] << 0
 	);
 
-	int offset_x = (int)(fmod(player->x - 20.0, 1) * SIZE);
-	int offset_y = (int)(fmod(player->y - 20.0, 1) * SIZE);
+	camera_x += (player->x - camera_x) / 2.0;
+	camera_y += (player->y - camera_y) / 2.0;
+
+	float player_offset_x = 20.0 + (player->x - camera_x);
+	float player_offset_y = 20.0 + (player->y - camera_y);
+
+	int offset_x = (int)roundf(fmod(player->x - player_offset_x, 1) * SIZE);
+	int offset_y = (int)roundf(fmod(player->y - player_offset_y, 1) * SIZE);
 
 	// printf("offset: %d %d, player_pos: %f %f\n", offset_x, offset_y, player->x, player->y);
 
 	// int offset_y = mod((int)(player->y * SIZE), SIZE);
 	for (int y = -1; y < CHUNK_SIZE+1; y++) {
 		for (int x = -1; x < CHUNK_SIZE+1; x++) {
-			int bx = x + (int)(player->x - 20.0);
-			int by = y + (int)(player->y - 20.0);
+			int bx = x + (int)(player->x - player_offset_x);
+			int by = y + (int)(player->y - player_offset_y);
 
 			struct Block* b = world__get(world, bx, by);
 			SDL_Rect r = {x * SIZE - offset_x, y * SIZE - offset_y, SIZE, SIZE};
@@ -227,7 +237,10 @@ main_loop(void) {
 	}
 
 	{
-		SDL_Rect rect = {20 * SIZE, 20 * SIZE, SIZE, SIZE};
+		SDL_Rect rect = {
+			(int)roundf(player_offset_x * (float)SIZE), (int)roundf(player_offset_y * (float)SIZE),
+			SIZE, SIZE
+		};
 		SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
 		SDL_RenderFillRect(render, &rect);
 	}
