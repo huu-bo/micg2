@@ -28,10 +28,10 @@ static int player_fly = 0;
 #define KEY_S (1 << 1)
 #define KEY_D (1 << 0)
 
-#define PLAYER_ACC (0.04)
-#define PLAYER_DEC (1.05)
-#define PLAYER_JUMP (0.8)
-#define PLAYER_GRAVITY (0.1)
+#define PLAYER_ACC (0.07)
+#define PLAYER_DEC (1.3)
+#define PLAYER_JUMP (1.3)
+#define PLAYER_GRAVITY (0.2)
 
 void player__update(struct Player* player, unsigned int keys) {
 	// wasd
