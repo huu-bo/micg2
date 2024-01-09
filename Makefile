@@ -4,7 +4,7 @@ CFLAGS = -Wall -pedantic -std=c99 -DGIT_VERSION='"$(GIT_VERSION)"'
 LDFLAGS = -lm
 
 GIT_VERSION = $(shell git describe --dirty --always --tags)
-BUILD_MARKER = build/$(GIT_VERSION)-$(TARGET).build
+BUILD_MARKER = build/$(GIT_VERSION)-$(TARGET).build # TODO: add git marker and target marker
 DEP = build/
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP)/$*.d
 
@@ -28,6 +28,7 @@ endif
 SRCFILES = main.c world.c block.c noise.c texture.c player.c
 
 OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))
+# SHOBJFILES := $(OBJFILES:%.o=%.so)
 
 $(EXE): $(OBJFILES)
 	$(CC) $^ -o $@ $(LDFLAGS)
@@ -43,13 +44,13 @@ $(BUILD_MARKER): | build
 	touch $(BUILD_MARKER)
 
 .PHONY: full
-full: clean micg
+full: clean $(EXE)
 
 .PHONY: clean
 clean:
 	rm -fv $(OBJFILES)
 	rm -frv build
-	rm -fv $(EXE) micg.*
+	rm -fv $(EXE)*
 
 DEPFILES := $(OBJFILES:%.o=%.d)
 include $(wildcard $(DEPFILES))
