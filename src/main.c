@@ -45,8 +45,13 @@ int is_server = 0;
 float camera_x = 0.0;
 float camera_y = 0.0;
 
+#define MACRO_VALUE_STR(x) STR(x)
+#define MACRO_STR(x) #x
+
 extern int test_world();
 int main() {
+	// printf("SDL_BUTTON: '%s'\n", MACRO_VALUE_STR(SDL_BUTTON(1)));
+
 	if (test_world() != 0) {
 		fprintf(stderr, "world testing failed\n");
 		return 1;
@@ -158,6 +163,8 @@ int main() {
 	SDL_Quit();
 }
 
+int mouse_x = 0, mouse_y = 0;
+
 #ifdef __EMSCRIPTEN__
  void
 #else
@@ -185,6 +192,7 @@ main_loop(void) {
 	SDL_RenderFillRect(render, NULL);
 
 	const uint8_t* keys = SDL_GetKeyboardState(NULL);
+	uint32_t mouse_press = SDL_GetMouseState(&mouse_x, &mouse_y);
 
 	player__update(player,
 		keys[SDL_SCANCODE_W] << 3 |
@@ -212,6 +220,22 @@ main_loop(void) {
 
 			struct Block* b = world__get(world, bx, by);
 			SDL_Rect r = {x * SIZE - offset_x, y * SIZE - offset_y, SIZE, SIZE};
+
+			if (mouse_x > x * SIZE && mouse_x <= (x + 1) * SIZE
+				&& mouse_y > y * SIZE && mouse_y <= (y + 1) * SIZE) {
+				if (mouse_press & SDL_BUTTON(1)) {
+					if (world__set_by_name(world, bx, by, "grass") == 1) {
+						fprintf(stderr, "invalid id\n");
+						// TODO:  crash
+					}
+				} else if (mouse_press & SDL_BUTTON(3)) {
+					if (world__set_by_id(world, bx, by, 0) == 1) {
+						fprintf(stderr, "air does not exist\n");
+						return 1;
+					}
+				}
+			}
+
 			if (b == NULL) {
 				SDL_SetRenderDrawColor(render, 255, 0, 0, 255);
 				SDL_RenderFillRect(render, &r);
@@ -228,9 +252,12 @@ main_loop(void) {
 			if (b->texture_cache == NULL) {
 				b->texture_cache = world__get_texture(world, bx, by);
 
-				SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
-				SDL_RenderFillRect(render, &r);
-			} else if (b->texture_cache != (void*)1) {
+				if (b->texture_cache == NULL) {
+					SDL_SetRenderDrawColor(render, 0, 255, 0, 255);
+					SDL_RenderFillRect(render, &r);
+				}
+			}
+			if (b->texture_cache != NULL && b->texture_cache != (void*)1) {
 				SDL_RenderCopy(render, b->texture_cache, NULL, &r);
 			}
 		}

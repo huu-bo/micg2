@@ -39,6 +39,12 @@ void world__delete(struct World*);
 
 struct Block* world__get(struct World*, int x, int y);
 
+void world__set(struct World*, int x, int y, struct Block block);
+// returns 1 if invalid id, 0 otherwise
+int world__set_by_id(struct World*, int x, int y, unsigned int id);
+// returns 1 if invalid id, 0 otherwise
+int world__set_by_name(struct World*, int x, int y, const char* name);
+
 
 SDL_Texture* world__get_texture(struct World*, int x, int y);
 extern int render_supports_targettex;

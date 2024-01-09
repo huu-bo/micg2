@@ -34,7 +34,7 @@ int block__set(struct Block* block, unsigned int type) {
 
 	return 0;
 }
-int block__set_name(struct Block* block, char* type_name) {
+int block__set_name(struct Block* block, const char* type_name) {
 	for (size_t i = 1; i < block_types_size; i++) {
 		if (strcmp(type_name, block_types[i].name) == 0) {
 			return block__set(block, i);

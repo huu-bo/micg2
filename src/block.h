@@ -27,7 +27,7 @@ struct Block {
 
 // struct Block* block__new(char* type_name);
 int block__set(struct Block*, unsigned int type);
-int block__set_name(struct Block*, char* type_name);
+int block__set_name(struct Block*, const char* type_name);
 
 struct Block_texture {
 	struct Connect_texture* (*transition)[MAX_BLOCKS]; // a pointer to an array of pointers to struct Transition_texture

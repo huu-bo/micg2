@@ -153,9 +153,7 @@ SDL_Texture* world__get_texture(struct World* world, int x, int y) {
 	}
 
     not_fail:
-
-	// TODO: connected textures
-	if (connect_idx != 0 && type->texture.connect != NULL) {
+	if (connect != 0 && connect_idx != 0 && type->texture.connect != NULL) {
 		if (type->texture.connect->textures[connect] != NULL) {
 			return type->texture.connect->textures[connect-1];
 		}

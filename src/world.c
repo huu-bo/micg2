@@ -138,6 +138,56 @@ struct Block* world__get(struct World* world, int x, int y) {
 	return &c->chunk[mod(x, CHUNK_SIZE) + mod(y, CHUNK_SIZE) * CHUNK_SIZE];
 }
 
+void world__set(struct World* world, int x, int y, struct Block block) {
+	struct Block* block_p = world__get(world, x, y);
+}
+// returns 1 if invalid id, 0 otherwise
+int world__set_by_id(struct World* world, int x, int y, unsigned int id) { // TODO: code duplication
+	struct Block* block = world__get(world, x, y);
+	if (block == NULL) {
+		return 1;
+	}
+	if (block__set(block, id)) {
+		return 1;
+	}
+
+	for (int dy = -1; dy <= 1; dy++) {
+		for (int dx = -1; dx <= 1; dx++) {
+			struct Block* block = world__get(world, x + dx, y + dy);
+			if (block == NULL) {
+				return 1;
+			}
+			if (block->texture_cache != (SDL_Texture*)1) {
+				block->texture_cache = NULL;
+			}
+		}
+	}
+	return 0;
+}
+// returns 1 if invalid id, 0 otherwise
+int world__set_by_name(struct World* world, int x, int y, const char* name) {
+	struct Block* block = world__get(world, x, y);
+	if (block == NULL) {
+		return 1;
+	}
+	if (block__set_name(block, name)) {
+		return 1;
+	}
+
+	for (int dy = -1; dy <= 1; dy++) {
+		for (int dx = -1; dx <= 1; dx++) {
+			struct Block* block = world__get(world, x + dx, y + dy);
+			if (block == NULL) {
+				return 1;
+			}
+			if (block->texture_cache != (SDL_Texture*)1) {
+				block->texture_cache = NULL;
+			}
+		}
+	}
+	return 0;
+}
+
 int test_world() {
 	TEST_EQ(9, mod(-1, 10));
 	TEST_EQ(9, mod(-11, 10));
