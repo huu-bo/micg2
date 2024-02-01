@@ -221,8 +221,8 @@ main_loop(void) {
 			struct Block* b = world__get(world, bx, by);
 			SDL_Rect r = {x * SIZE - offset_x, y * SIZE - offset_y, SIZE, SIZE};
 
-			if (mouse_x > x * SIZE && mouse_x <= (x + 1) * SIZE
-				&& mouse_y > y * SIZE && mouse_y <= (y + 1) * SIZE) {
+			if (mouse_x >= r.x && mouse_x < r.x + r.w
+			    && mouse_y >= r.y && mouse_y < r.y + r.h) {
 				if (mouse_press & SDL_BUTTON(1)) {
 					if (world__set_by_name(world, bx, by, "grass") == 1) {
 						fprintf(stderr, "invalid id\n");
