@@ -4,7 +4,7 @@
 #include "world.h"
 
 void init_physics(void);
-void update_physics(void);
+void update_physics(struct World*);
 
 void add_to_physics_update(struct World*, int bx, int by);
 

@@ -10,6 +10,7 @@
 #include "world.h"
 #include "block.h"
 #include "math.h"
+#include "physics.h"
 
 #ifndef GIT_VERSION
  #warning "no git commit id"
@@ -134,6 +135,8 @@ int main() {
 		return 1;
 	}
 
+	init_physics();
+
 	// if (start_physics() != 0) {
 	// 	SDL_Quit();
 	// 	fprintf(stderr, "error initialising physics\n");
@@ -195,6 +198,8 @@ main_loop(void) {
 		}
 	}
 
+	update_physics(world);  // TODO: do this on seperate thread if not compiling for web
+
 	SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
 	SDL_RenderFillRect(render, NULL);
 
@@ -239,6 +244,11 @@ main_loop(void) {
 					if (world__set_by_id(world, bx, by, 0) == 1) {
 						fprintf(stderr, "air does not exist\n");
 						return 1;
+					}
+				}
+				for (short i = -1; i <= 1; i++) {
+					for (short j = -1; j <= 1; j++) {
+						add_to_physics_update(world, bx + i, by + j);
 					}
 				}
 			}

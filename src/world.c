@@ -140,6 +140,8 @@ struct Block* world__get(struct World* world, int x, int y) {
 
 void world__set(struct World* world, int x, int y, struct Block block) {
 	struct Block* block_p = world__get(world, x, y);
+
+	memcpy(block_p, &block, sizeof(block));
 }
 // returns 1 if invalid id, 0 otherwise
 int world__set_by_id(struct World* world, int x, int y, unsigned int id) { // TODO: code duplication
