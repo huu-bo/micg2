@@ -66,7 +66,7 @@ void player__update(struct Player* player, unsigned int keys) {
 
 	// printf("%f\n", player->y_v);
 
-	while (
+	while (  // TODO: this assumes that everything that is not air is solid
 	    world__get(world, (int)floorf(player->x), (int)ceilf(player->y))->type != 0
 	    || world__get(world, (int)ceilf(player->x), (int)ceilf(player->y))->type != 0
 	) {

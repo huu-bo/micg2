@@ -23,6 +23,13 @@
 struct World* world;
 struct Player* player;
 
+/* TODO:
+ * saving:
+ *   physics.to_add
+ *   world
+ *   player pos
+ */
+
 #define TITLE_LENGTH 128
 
 #ifdef __EMSCRIPTEN__

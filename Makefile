@@ -25,7 +25,7 @@ else
 	EXE ?= micg
 endif
 
-SRCFILES = main.c world.c block.c noise.c texture.c player.c
+SRCFILES = main.c world.c block.c noise.c texture.c player.c physics.c
 
 OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))
 # SHOBJFILES := $(OBJFILES:%.o=%.so)
