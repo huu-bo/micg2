@@ -71,14 +71,16 @@ void update_physics(struct World* world) {
 
 			{
 				struct Block* b = world__get(world, bx, by - 1);
-				if (b->type != 0 && e->block->support != b->support + 1) {
-					e->block->support = b->support + 1;
+				if (b->type != 0) {
+					if (e->block->support != b->support + 1) {
+						e->block->support = b->support + 1;
 
-					if (e->block->support > max_max_support) {
-						e->block->support = max_max_support;
-					} else {
-						moved = 1;
-						printf("support %u @ %d,%d\n", e->block->support, e->bx, e->by);  // TODO: set correct support in world gen
+						if (e->block->support > max_max_support) {
+							e->block->support = max_max_support;
+						} else {
+							moved = 1;
+							printf("support %u @ %d,%d\n", e->block->support, e->bx, e->by);  // TODO: set correct support in world gen
+						}
 					}
 				} else {
 					if (e->block->support != 0) {
@@ -120,10 +122,23 @@ void update_physics(struct World* world) {
 					world__set_by_id(world, e->bx, e->by, 0);
 				}
 
-				for (int i = -1; i <= 1; i++) {
-					for (int j = -1; j <= 1; j++) {
-						add_to_physics_update(world, e->bx + i, e->by + j);
-						add_to_physics_update(world, bx + i, by + j);
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < 3; j++) {
+						static const int d[3] = {0, -1, 1};
+						int dx = d[i], dy = d[j];
+
+						add_to_physics_update(world, e->bx + dx, e->by + dy);
+						add_to_physics_update(world, bx + dx, by + dy);
+					}
+				}
+
+				{
+					unsigned int i = 1;
+					struct Block* b = world__get(world, bx, by + i);
+					while (b->type != 0 && i++ < max_max_support) {
+						b->support = e->block->support + i - 1;
+
+						b = world__get(world, bx, by + i);
 					}
 				}
 			}

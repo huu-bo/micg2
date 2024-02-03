@@ -9,7 +9,7 @@
 
 #define STBI_MAX_DIMENSIONS 2048
 #define STB_IMAGE_IMPLEMENTATION
-#ifndef RELEASE
+#ifndef RELEASE  // TODO: this would be defined in main.h which is included later
  #define STBI_ONLY_PNG
 #endif
 #include "stb_image.h"

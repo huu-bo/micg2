@@ -12,7 +12,7 @@ ifeq (platform, $(TARGET))
 	CC = gcc
 	EXE ?= micg
 
-	CFLAGS += -ggdb
+	CFLAGS += -ggdb -pipe
 	LDFLAGS += -lSDL2 -ggdb
 else ifeq (web, $(TARGET))
 	CC = emcc
@@ -25,7 +25,7 @@ else
 	EXE ?= micg
 endif
 
-SRCFILES = main.c world.c block.c noise.c texture.c player.c physics.c
+SRCFILES = main.c world.c block.c noise.c texture.c player.c physics.c number.c
 
 OBJFILES = $(addprefix build/, $(patsubst %.c, %.o, $(SRCFILES)))
 # SHOBJFILES := $(OBJFILES:%.o=%.so)

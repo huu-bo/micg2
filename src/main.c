@@ -11,6 +11,7 @@
 #include "block.h"
 #include "math.h"
 #include "physics.h"
+#include "number.h"
 
 #ifndef GIT_VERSION
  #warning "no git commit id"
@@ -137,6 +138,11 @@ int main() {
 
 	init_physics();
 
+	if (number__init() != 0) {
+		fprintf(stderr, "initialising number renderer failed\n");
+		return 1;
+	}
+
 	// if (start_physics() != 0) {
 	// 	SDL_Quit();
 	// 	fprintf(stderr, "error initialising physics\n");
@@ -155,7 +161,7 @@ int main() {
 		{
 			unsigned int time_took = SDL_GetTicks() - ticks;
 
-			// printf("frame time: %d\n", time_took);
+			printf("frame time: %d\n", time_took);
 
 			unsigned int delay = 16 - time_took;
 			if (delay > 100) {
@@ -170,6 +176,7 @@ int main() {
 
 	world__delete(world);
 	free_blocks();
+	number__del();
 	SDL_Quit();
 }
 
@@ -276,6 +283,8 @@ main_loop(void) {
 			}
 			if (b->texture_cache != NULL && b->texture_cache != (void*)1) {
 				SDL_RenderCopy(render, b->texture_cache, NULL, &r);
+
+				// number__render(render, r.x, r.y, b->support);
 			}
 		}
 	}
