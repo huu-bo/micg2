@@ -161,7 +161,7 @@ int main() {
 		{
 			unsigned int time_took = SDL_GetTicks() - ticks;
 
-			printf("frame time: %d\n", time_took);
+			// printf("frame time: %d\n", time_took);
 
 			unsigned int delay = 16 - time_took;
 			if (delay > 100) {
