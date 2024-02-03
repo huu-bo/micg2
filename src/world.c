@@ -91,7 +91,9 @@ struct Chunk* world__gen_chunk(struct World* world, int x, int y) {
 			// if (by_i == 1) { printf("\tbx: %d height: %d\n", bx, height); }
 
 			if (by > height) {
-				block__set_name(&chunk->chunk[by_i * CHUNK_SIZE + bx_i], "grass");
+				struct Block* b = &chunk->chunk[by_i * CHUNK_SIZE + bx_i];
+				block__set_name(b, "grass");
+				b->support = by - height - 1;
 			} else {
 				block__set(&chunk->chunk[by_i * CHUNK_SIZE + bx_i], 0);
 			}

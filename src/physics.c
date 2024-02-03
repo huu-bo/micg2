@@ -58,6 +58,7 @@ void update_physics(struct World* world) {
 	unsigned int updates = 0, added = 0;
 
 	if (to_update.arr.arr && to_update.arr.size > 0) {
+		unsigned int dir = 0;
 		updates += to_update.arr.length;
 		for (size_t i = 0; i < to_update.arr.length; i++) {
 			struct To_update__Element* e = &to_update.arr.arr[i];
@@ -66,15 +67,58 @@ void update_physics(struct World* world) {
 
 			// TODO: block velocity
 			int bx = e->bx, by = e->by;
-			if (block_types[e->block->type].solid) {
-				if (world__get(world, bx, by + 1)->type == 0) {
-					by += 1;
+			int moved = 0;
+
+			{
+				struct Block* b = world__get(world, bx, by - 1);
+				if (b->type != 0 && e->block->support != b->support + 1) {
+					e->block->support = b->support + 1;
+
+					if (e->block->support > max_max_support) {
+						e->block->support = max_max_support;
+					} else {
+						moved = 1;
+						printf("support %u @ %d,%d\n", e->block->support, e->bx, e->by);  // TODO: set correct support in world gen
+					}
+				} else {
+					if (e->block->support != 0) {
+						moved = 1;
+					}
+					e->block->support = 0;
 				}
 			}
 
-			if (e->bx != bx || e->by != by) {
-				world__set(world, bx, by, *e->block);
-				world__set_by_id(world, e->bx, e->by, 0);
+			if (block_types[e->block->type].solid) {
+				if (world__get(world, bx, by + 1)->type == 0) {
+					by += 1;
+				} else if (e->block->support+2 > block_types[e->block->type].max_support) {
+					unsigned int options = 0;
+					if (world__get(world, bx + 1, by + 1)->type == 0) {
+						options |= 1;
+					}
+					if (world__get(world, bx - 1, by + 1)->type == 0) {
+						options |= 2;
+					}
+
+					if (options == 3) {
+						bx += dir ? 1 : -1;
+					} else if (options == 2) {
+						bx--;
+					} else if (options == 1) {
+						bx++;
+					}
+
+					if (options != 0) {
+						by++;
+					}
+				}
+			}
+
+			if (e->bx != bx || e->by != by || moved) {
+				if (e->bx != bx || e->by != by) {
+					world__set(world, bx, by, *e->block);
+					world__set_by_id(world, e->bx, e->by, 0);
+				}
 
 				for (int i = -1; i <= 1; i++) {
 					for (int j = -1; j <= 1; j++) {
@@ -87,6 +131,8 @@ void update_physics(struct World* world) {
 			size_t h = hash(e->bx, e->by);
 
 			to_update.set[h].block = NULL;
+
+			dir ^= 1;
 		}
 	}
 	to_update.arr.length = 0;

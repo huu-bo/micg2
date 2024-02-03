@@ -18,6 +18,7 @@
 #include "main.h"
 
 #define BLOCK_PATH_SIZE 128
+const unsigned int max_max_support = 100;
 
 int block__set(struct Block* block, unsigned int type) {
 	block->type = type;
@@ -323,7 +324,12 @@ static int parse_block(const char* path) {
 		// printf("parse: '%s' '%s'\n", lhs, rhs);
 
 		if (strcmp(lhs, "max_support") == 0) {
-			type.max_support = atoi(rhs);
+			unsigned int i = atoi(rhs);
+			if (i > max_max_support) {
+				fprintf(stderr, "max_support too great (limit is %u)", max_max_support);
+				exit(1);
+			}
+			type.max_support = i;
 		} else if (strcmp(lhs, "solid") == 0) {
 			type.solid = atoi(rhs);
 		} else if (strcmp(lhs, "fluid") == 0) {

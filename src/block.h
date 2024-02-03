@@ -50,6 +50,8 @@ struct Block_type {
 extern struct Block_type block_types[MAX_BLOCKS];
 extern size_t block_types_size;
 
+extern const unsigned int max_max_support;
+
 #include "world.h"
 
 struct Single_texture {
