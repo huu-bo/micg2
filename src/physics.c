@@ -4,8 +4,13 @@
 #include "block.h"
 #include "world.h"
 
-#define HASH_SIZE (1 << 22)
-#define HASH_ROW_SIZE (1 << 11)
+#ifndef __EMSCRIPTEN__
+ #define HASH_SIZE (1 << 22)
+ #define HASH_ROW_SIZE (1 << 11)
+#else
+ #define HASH_SIZE (1<<10)
+ #define HASH_ROW_SIZE (1<<5)
+#endif
 
 struct {
 	struct To_update__Element {
@@ -27,7 +32,7 @@ struct {
 } static to_add;
 
 static size_t hash(int b_x, int b_y) {
-	return b_x + b_y * HASH_ROW_SIZE;
+	return ((unsigned)(b_x + b_y * HASH_ROW_SIZE)) % HASH_SIZE;
 }
 
 void init_physics(void) {

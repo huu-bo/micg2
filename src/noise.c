@@ -66,6 +66,12 @@ static int filter__get(struct Filter* filter, struct Seeds seeds, int x) {
 //		return filter->gen(seeds, x);
 //	}
 
+	// if (x > 10) {
+	// 	return 400;
+	// } else {
+	// 	return 0;
+	// }
+
 	unsigned int hash;
 
 	int prev_x;

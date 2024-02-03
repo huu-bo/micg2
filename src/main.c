@@ -191,6 +191,8 @@ main_loop(void) {
 #ifndef __EMSCRIPTEN__
 	int run = 1;
 #endif
+	unsigned int ticks = SDL_GetTicks();
+
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
@@ -250,7 +252,6 @@ main_loop(void) {
 				} else if (mouse_press & SDL_BUTTON(3)) {
 					if (world__set_by_id(world, bx, by, 0) == 1) {
 						fprintf(stderr, "air does not exist\n");
-						return 1;
 					}
 				}
 				for (short i = -1; i <= 1; i++) {
@@ -297,6 +298,9 @@ main_loop(void) {
 		SDL_SetRenderDrawColor(render, 255, 255, 0, 255);
 		SDL_RenderFillRect(render, &rect);
 	}
+
+	unsigned int time_took = SDL_GetTicks() - ticks;
+	number__render(render, 0, 0, time_took);
 
 	SDL_RenderPresent(render);
 

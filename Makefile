@@ -18,8 +18,8 @@ else ifeq (web, $(TARGET))
 	CC = emcc
 	EXE ?= micg.html
 
-	CFLAGS += -s USE_SDL=2 # -s USE_PTHREADS=1
-	LDFLAGS += -s USE_SDL=2 --preload-file mod # -s USE_PTHREADS=1 --proxy-to-worker
+	CFLAGS += -s USE_SDL=2 -O2 # -s USE_PTHREADS=1
+	LDFLAGS += -s USE_SDL=2 --preload-file mod -s TOTAL_MEMORY=65536000 # -s USE_PTHREADS=1 --proxy-to-worker
 else
 	CC ?= false
 	EXE ?= micg
