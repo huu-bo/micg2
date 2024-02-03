@@ -35,6 +35,33 @@ tile_mode = ''
 
 zoom_timer = 1000
 
+save = [
+    (0, '0110'),
+    (1, '0111'),
+    (2, '0011'),
+    (3, '1110'),
+    (4, '1111'),
+    (5, '1011'),
+    (6, '1100'),
+    (7, '1101'),
+    (8, '1001'),
+
+    (9, ''),
+
+    (10, '0100'),
+    (11, '0101'),
+    (12, '0001'),
+
+    (13, '0010'),
+    (14, '1010'),
+    (15, '1000'),
+
+    (16, '2'),
+    (17, '3'),
+    (18, '1'),
+    (19, '4')
+]
+
 state = 'draw'
 state_stack = [state]
 data_stack = []
@@ -72,6 +99,9 @@ while run:
                         else:
                             state_stack.append(state)
                             state = 'ctrl_s'
+                    elif event.key == pygame.K_l:
+                        state_stack.append(state)
+                        state = 'ctrl_l'
 
                     elif event.key == pygame.K_f:
                         canvas.fill(color)
@@ -313,7 +343,7 @@ while run:
     elif state == 'save_palette':
         raise NotImplementedError('saving palette, TODO: implement if palette can be edited')
 
-    elif state == 'choose_file':  # can not be called recursively
+    elif state == 'choose_file':  # cannot be called recursively
         if dir_i < 0:
             dir_i = 0
         elif dir_i >= len(dir_list):
@@ -425,12 +455,48 @@ while run:
         else:
             name = data_stack.pop()
             if tile_mode == 'adapt':
-                for i, tile in enumerate(adapt_tiles):
-                    pygame.image.save(tile, f'{name} {i}.png')
+                for idx, s in save:
+                    pygame.image.save(adapt_tiles[idx], f'{name}{s}.png')
             else:
                 pygame.image.save(canvas, f'{name}.png')
 
             state = state_stack.pop()
+    
+    elif state == 'ctrl_l':
+        if len(data_stack) == 0:
+            state_stack.append(state)
+            state = 'choose_file'
+        else:
+            print('loading')
+
+            name = data_stack.pop()
+            if name[-4:] != '.png':
+                data_stack = ['Not png']
+                state = 'error'
+            else:
+                name = name[:-4]
+                print(f'loading {name}')
+                # name = name.removesuffix('.png')
+                try:
+                    if tile_mode == 'adapt':
+                        print('tile mode adapt')
+                        for idx, s in save:
+                            n = name + f'{s}.png'
+                            print(f'loading {n}')
+                            adapt_tiles[idx] = pygame.image.load(n)
+                            # adapt_tiles[idx].fill((0, 100, 0))
+                            print(f'loaded {n}')
+                        # for i, tile in enumerate(adapt_tiles):
+                        #     pygame.image.save(tile, f'{name} {i}.png')
+                    else:
+                        print('tile mode not adapt')
+                        canvas = pygame.image.load(name)
+                except FileNotFoundError:
+                    print('file not found')
+                    data_stack = ['file not found']
+                    state = 'error'
+
+                state = state_stack.pop()
 
     elif state == 'new_file':
         for event in pygame.event.get():
