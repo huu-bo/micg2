@@ -84,7 +84,7 @@ void update_physics(struct World* world) {
 							e->block->support = max_max_support;
 						} else {
 							moved = 1;
-							printf("support %u @ %d,%d\n", e->block->support, e->bx, e->by);  // TODO: set correct support in world gen
+							// printf("support %u @ %d,%d\n", e->block->support, e->bx, e->by);
 						}
 					}
 				} else {
@@ -185,7 +185,7 @@ void update_physics(struct World* world) {
 	}
 	to_add.length = 0;
 
-	if (updates != 0 || added != 0) {
+	if (updates > 9 || added > 9) {
 		printf("updated physics: updates: %u; added: %u\n", updates, added);  // TODO: print time took
 	}
 }

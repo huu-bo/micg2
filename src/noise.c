@@ -66,8 +66,8 @@ static int filter__get(struct Filter* filter, struct Seeds seeds, int x) {
 //		return filter->gen(seeds, x);
 //	}
 
-	// if (x > 10) {
-	// 	return 400;
+	// if (x > -20) {
+	// 	return 200;
 	// } else {
 	// 	return 0;
 	// }

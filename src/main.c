@@ -302,6 +302,8 @@ main_loop(void) {
 	unsigned int time_took = SDL_GetTicks() - ticks;
 	number__render(render, 0, 0, time_took);
 
+	number__render_full(render, 0, SIZE, 1234567, 0);
+
 	SDL_RenderPresent(render);
 
 #ifndef __EMSCRIPTEN__

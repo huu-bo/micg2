@@ -112,3 +112,36 @@ void number__render(SDL_Renderer* render, int x, int y, unsigned char num) {
 	}
 }
 
+void number__render_full(SDL_Renderer* render, int x, int y, unsigned int num, int pad) {
+	#define NUM_MAX_DIGITS 20
+
+	unsigned char digits[NUM_MAX_DIGITS] = {0};
+	for (unsigned int i = NUM_MAX_DIGITS-1; i > 0; i--) {
+		digits[i] = num % 10;
+		num /= 10;
+	}
+
+	int start = 1;
+
+	unsigned int render_i = 0;
+	for (unsigned int i = 0; i < NUM_MAX_DIGITS; i++) {
+		unsigned int n = digits[i];
+
+		// printf("render__number_full num = %d; n = %d; start = %d; i = %u\n", num, n, start, i);
+
+		if (i == NUM_MAX_DIGITS-1) {
+			start = 0;
+		}
+
+		if (n != 0 || start == 0) {
+			SDL_RenderCopy(render, textures[n], NULL, &(SDL_Rect){x + t_width * (pad ? i : render_i), y, t_width, t_height});
+			start = 0;
+			render_i++;
+		}
+
+		// if (!(i == 0 && n == 0) /* leading zero */) {
+		//	SDL_RenderCopy(render, textures[n], NULL, &(SDL_Rect){x + t_width * i, y, t_width, t_height});
+		//}
+	}
+}
+
